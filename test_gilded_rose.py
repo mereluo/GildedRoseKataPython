@@ -5,35 +5,39 @@ from gilded_rose import Item, GildedRose
 
 
 class GildedRoseTest(unittest.TestCase):
-    def test_foo(self):
-        items = [Item("foo", 0, 0)]
-        gilded_rose = GildedRose(items)
-        gilded_rose.update_quality()
-        self.assertEquals("fixme", items[0].name)
 
-    def test_brie_should_increase_after_one_day(self):
-        brie = "Aged Brie"
-        items = [Item(brie, 1, 2)]
+    def test_aged_brie_increases_in_quality(self):
+        items = [Item("Aged Brie", 2, 0)]
         gr = GildedRose(items)
+        gr.update_items(items[0])
+        self.assertEqual(items[0].quality, 1)  # Quality increases by 1
+        self.assertEqual(items[0].sell_in, 1)  # SellIn decreases by 1
 
-        gr.update_quality()
-        self.assertEqual(1, items[0].quality)
-
-    def test_sulfuras_should_remain_same_after_one_day(self):
-        sulfuras = "Sulfuras, Hand of Ragnaros"
-        items = [Item(sulfuras, 2, 3)]
+    def test_sulfuras_quality_constant(self):
+        items = [Item("Sulfuras", 0, 80)]
         gr = GildedRose(items)
+        gr.update_items(items[0])
+        self.assertEqual(items[0].quality, 80)
+        self.assertEqual(items[0].sell_in, 0)
 
-        gr.update_quality()
-        self.assertEqual(2, items[0].quality)
-
-    def test_quality_never_more_than_50(self):
-        brie = "Aged Brie"
-        items = [Item(brie, 2, 50)]
+    def test_conjured_items_degrade_twice_as_fast(self):
+        items = [Item("Conjured Mana Cake", 3, 6)]
         gr = GildedRose(items)
+        gr.update_items(items[0])
+        self.assertEqual(items[0].quality, 4)  # Quality decreases by 2
+        self.assertEqual(items[0].sell_in, 2)  # SellIn decreases by 1
 
-        gr.update_quality()
-        self.assertEqual(51, items[0].quality)
+    def test_backstage_passes(self):
+        items = [Item("Backstage passes to a TAFKAL80ETC concert", 15, 20)]
+        gr = GildedRose(items)
+        gr.update_items(items[0])
+        self.assertEqual(items[0].quality, 21)  # Quality increases by 1
+        self.assertEqual(items[0].sell_in, 14)
+
+        # Update within 10 days of concert (quality increases by 2)
+        items[0].sell_in = 10
+        gr.update_items(items[0])
+        self.assertEqual(items[0].quality, 23)  # Quality increases by 2
 
 
 if __name__ == '__main__':
